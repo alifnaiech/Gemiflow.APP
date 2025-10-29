@@ -58,7 +58,6 @@ class _HomePageState extends State<HomePage> {
                   onDestinationSelected: (value) {
                     setState(() {
                       selectedIndex = value;
-                      print(value);
                     });
                   },
                 ),
