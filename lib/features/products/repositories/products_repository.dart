@@ -1,0 +1,7 @@
+class ProductsRepository {
+
+
+  fetchProducts(){
+    
+  }
+}
