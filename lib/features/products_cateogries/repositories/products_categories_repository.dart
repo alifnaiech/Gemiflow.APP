@@ -8,11 +8,20 @@ class ProductsCategoriesRepository {
 
   Future<List<ProductsCategory>> getProductsCategories() async {
     try {
-      final productsCategories = await productsCategoriesService.getProductsCategories();
+      final productsCategories = await productsCategoriesService
+          .getProductsCategories();
       return productsCategories;
     } catch (e) {
       print("Error in the repository ");
       rethrow;
     }
+  }
+
+  Future<void> addCategory(String name) async {
+    await productsCategoriesService.createProductsCategory(name);
+  }
+
+  Future<void> updateCategory(int categoryId, String categoryName) async{
+    await productsCategoriesService.updateProductsCategory(categoryId, categoryName);
   }
 }
