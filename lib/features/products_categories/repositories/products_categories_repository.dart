@@ -1,5 +1,5 @@
-import 'package:gemiflow/features/products_cateogries/models/products_categories_model.dart';
-import 'package:gemiflow/features/products_cateogries/services/products_categories_service.dart';
+import 'package:gemiflow/features/products_categories/models/products_categories_model.dart';
+import 'package:gemiflow/features/products_categories/services/products_categories_service.dart';
 
 class ProductsCategoriesRepository {
   final ProductsCategoriesService productsCategoriesService;

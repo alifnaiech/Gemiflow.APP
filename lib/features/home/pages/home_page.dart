@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gemiflow/features/products_cateogries/pages/categories_page.dart';
+import 'package:gemiflow/features/products_categories/pages/categories_page.dart';
 import 'package:gemiflow/features/dashboard/pages/dashboard_page.dart';
 import 'package:gemiflow/features/products/pages/products_page.dart';
 
@@ -38,20 +38,32 @@ class _HomePageState extends State<HomePage> {
             children: [
               SafeArea(
                 child: NavigationRail(
-                  backgroundColor: colorScheme.surfaceContainer,
+                  backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                   extended: constraints.maxWidth >= 800,
-                  destinations: [
+                  destinations: const [
                     NavigationRailDestination(
-                      icon: Icon(Icons.dashboard),
-                      label: Text("Dashboard"),
+                      icon: Icon(Icons.dashboard_outlined),
+                      selectedIcon: Icon(
+                        Icons.dashboard,
+                        color: Colors.indigoAccent,
+                      ),
+                      label: Text('Dashboard'),
                     ),
                     NavigationRailDestination(
-                      icon: Icon(Icons.category_sharp),
-                      label: Text("Prodotti"),
+                      icon: Icon(Icons.inventory_2_outlined),
+                      selectedIcon: Icon(
+                        Icons.inventory_2,
+                        color: Colors.indigoAccent,
+                      ),
+                      label: Text('Prodotti'),
                     ),
                     NavigationRailDestination(
-                      icon: Icon(Icons.category_sharp),
-                      label: Text("Categorie"),
+                      icon: Icon(Icons.category_outlined),
+                      selectedIcon: Icon(
+                        Icons.category_rounded,
+                        color: Colors.indigoAccent,
+                      ),
+                      label: Text('Categorie'),
                     ),
                   ],
                   selectedIndex: selectedIndex,
@@ -62,10 +74,10 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               ),
-
+              VerticalDivider(width: 1),
               Expanded(
                 child: ColoredBox(
-                  color: colorScheme.surfaceBright,
+                  color: Colors.white,
                   child: AnimatedSwitcher(
                     duration: Duration(milliseconds: 200),
                     child: page,

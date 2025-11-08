@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gemiflow/features/products_cateogries/models/products_categories_model.dart';
-import 'package:gemiflow/features/products_cateogries/repositories/products_categories_repository.dart';
-import 'package:gemiflow/features/products_cateogries/services/products_categories_service.dart';
+import 'package:gemiflow/features/products_categories/models/products_categories_model.dart';
+import 'package:gemiflow/features/products_categories/repositories/products_categories_repository.dart';
+import 'package:gemiflow/features/products_categories/services/products_categories_service.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -46,22 +46,30 @@ class _CategoriesPageState extends State<CategoriesPage> {
           content: TextField(
             controller: nameController,
             decoration: const InputDecoration(border: OutlineInputBorder()),
+            onSubmitted: (value) {
+              Navigator.pop(context, value);
+            },
           ),
+          actionsAlignment: MainAxisAlignment.start,
           actions: [
-            TextButton(
-              onPressed: () {
-                // Close dialog and return false
-                Navigator.pop(context);
-              },
-              child: const Text('Annula'),
-            ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.indigo,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () {
                 final text = nameController.text.trim();
                 // Close dialog and return true
                 Navigator.pop(context, text);
               },
               child: const Text('Salva'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Close dialog and return false
+                Navigator.pop(context);
+              },
+              child: const Text('Annula'),
             ),
           ],
         );
@@ -111,18 +119,27 @@ class _CategoriesPageState extends State<CategoriesPage> {
           content: TextField(
             controller: nameController,
             decoration: const InputDecoration(border: OutlineInputBorder()),
+            onSubmitted: (value) {
+              productCategory.name = nameController.text.trim();
+              Navigator.pop(context, productCategory);
+            },
           ),
+          actionsAlignment: MainAxisAlignment.start,
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Annulla'),
-            ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.indigo,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () {
                 productCategory.name = nameController.text.trim();
                 Navigator.pop(context, productCategory);
               },
               child: const Text('Salva'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Annulla'),
             ),
           ],
         );
@@ -160,18 +177,35 @@ class _CategoriesPageState extends State<CategoriesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Categorie")),
+      appBar: AppBar(
+        title: const Text(
+          "Categorie",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.indigo,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              label: const Text("Nuova categoria"),
+              onPressed: () {
+                _openDialog(context);
+              },
+              icon: const Icon(Icons.add),
+            ),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                _openDialog(context);
-              },
-              label: Text('Nuova categoria'),
-              icon: Icon(Icons.add),
-            ),
             SizedBox(height: 10),
             Expanded(
               child: FutureBuilder<List<ProductsCategory>>(
@@ -189,28 +223,35 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
                   final productsCategory = snapshot.data!;
 
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Nome')),
-                        DataColumn(label: Text('Azioni')),
-                      ],
-                      rows: productsCategory.map((productCategory) {
-                        return DataRow(
-                          cells: [
-                            DataCell(Text(productCategory.name)),
-                            DataCell(
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () {
-                                  _openEditDialog(context, productCategory);
-                                },
-                              ),
-                            ),
+                  return SafeArea(
+                    child: SizedBox.expand(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: DataTable(
+                          headingRowColor: WidgetStateProperty.all(
+                            Colors.grey[100],
+                          ),
+                          columns: const [
+                            DataColumn(label: Text('Nome')),
+                            DataColumn(label: Text('Azioni')),
                           ],
-                        );
-                      }).toList(),
+                          rows: productsCategory.map((productCategory) {
+                            return DataRow(
+                              cells: [
+                                DataCell(Text(productCategory.name)),
+                                DataCell(
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () {
+                                      _openEditDialog(context, productCategory);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
                   );
                 },
