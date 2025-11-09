@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gemiflow/features/products/models/product_model.dart';
 import 'package:gemiflow/features/products/repositories/products_repository.dart';
 import 'package:gemiflow/features/products/services/products_service.dart';
-import 'package:gemiflow/features/products_categories/models/products_categories_model.dart';
-import 'package:gemiflow/features/products_categories/repositories/products_categories_repository.dart';
-import 'package:gemiflow/features/products_categories/services/products_categories_service.dart';
+import 'package:gemiflow/features/categories/models/category_model.dart';
+import 'package:gemiflow/features/categories/repositories/categories_repository.dart';
+import 'package:gemiflow/features/categories/services/categories_service.dart';
 
 class ProductsPage extends StatefulWidget {
   const ProductsPage({super.key});
@@ -15,10 +15,10 @@ class ProductsPage extends StatefulWidget {
 
 class _ProductsPageState extends State<ProductsPage> {
   late final ProductsRepository _productsRepository;
-  late final ProductsCategoriesRepository _productsCategoriesRepository;
-  late Future<List<Product>> _futureProducts;
-  late Future<List<ProductsCategory>> _futureProductsCategory;
-  List<ProductsCategory> _productsCategory = [];
+  late final CategoriesRepository _categoriesRepository;
+  late Future<List<ProductModel>> _futureProducts;
+  late Future<List<CategoryModel>> _futureCategory;
+  List<CategoryModel> _category = [];
   String euroSymbol = String.fromCharCode(0x20AC);
   @override
   void initState() {
@@ -28,15 +28,14 @@ class _ProductsPageState extends State<ProductsPage> {
       productsService: ProductsService(),
     );
 
-    _productsCategoriesRepository = ProductsCategoriesRepository(
-      productsCategoriesService: ProductsCategoriesService(),
+    _categoriesRepository = CategoriesRepository(
+      categoriesService: CategoriesService(),
     );
 
-    _futureProductsCategory = _productsCategoriesRepository
-        .getProductsCategories();
-    _futureProductsCategory.then((productsCategory) {
+    _futureCategory = _categoriesRepository.getCategories();
+    _futureCategory.then((category) {
       setState(() {
-        _productsCategory = productsCategory;
+        _category = category;
       });
     });
     _futureProducts = _productsRepository.getProducts();
@@ -45,17 +44,10 @@ class _ProductsPageState extends State<ProductsPage> {
   // Add new Product
   Future<void> _openDialogNewProduct() async {
     final TextEditingController productNameCtr = TextEditingController();
-    final TextEditingController productStockQuantityCtr =
-        TextEditingController();
     final TextEditingController productStockMinimumQuantityCtr =
         TextEditingController();
-    final TextEditingController productPricePurchaseCtr =
-        TextEditingController();
-    final TextEditingController productPriceSaleCtr = TextEditingController();
-    final TextEditingController productBarcodeNumberCtr =
-        TextEditingController();
-    int? selectedProductCategoryId;
-    final result = await showDialog(
+    int? selectedCategoryId;
+    final result = await showDialog<ProductModel>(
       context: context,
       barrierDismissible: true,
       builder: (context) {
@@ -93,16 +85,16 @@ class _ProductsPageState extends State<ProductsPage> {
                             const Text('Categoria'),
                             SizedBox(height: 5),
                             DropdownButtonFormField<int>(
-                              initialValue: selectedProductCategoryId,
-                              items: _productsCategory.map((prodCat) {
+                              initialValue: selectedCategoryId,
+                              items: _category.map((cat) {
                                 return DropdownMenuItem(
-                                  value: prodCat.productCategoryId,
-                                  child: Text(prodCat.name),
+                                  value: cat.category_id,
+                                  child: Text(cat.name),
                                 );
                               }).toList(),
                               onChanged: (val) {
                                 setState(() {
-                                  selectedProductCategoryId = val;
+                                  selectedCategoryId = val;
                                 });
                               },
                               decoration: const InputDecoration(
@@ -115,31 +107,8 @@ class _ProductsPageState extends State<ProductsPage> {
                     ],
                   ),
                   SizedBox(height: 10),
-                  const Text('Codice a barre'),
-                  SizedBox(height: 5),
-                  TextFormField(
-                    controller: productBarcodeNumberCtr,
-                    decoration: InputDecoration(border: OutlineInputBorder()),
-                  ),
-                  SizedBox(height: 10),
                   Row(
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Quantità'),
-                            SizedBox(height: 5),
-                            TextFormField(
-                              controller: productStockQuantityCtr,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,43 +127,6 @@ class _ProductsPageState extends State<ProductsPage> {
                     ],
                   ),
                   SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Prezzo Acquisto ($euroSymbol)'),
-                            SizedBox(height: 5),
-                            TextFormField(
-                              controller: productPricePurchaseCtr,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Prezzo Vendita ($euroSymbol)'),
-                            SizedBox(height: 5),
-                            TextFormField(
-                              controller: productPriceSaleCtr,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 10),
                 ],
               ),
             ),
@@ -207,7 +139,18 @@ class _ProductsPageState extends State<ProductsPage> {
                 foregroundColor: Colors.white,
               ),
               onPressed: () {
-                print("Selected category id ${selectedProductCategoryId}");
+                final product = ProductModel(
+                  0, // or assign a proper id if needed
+                  productNameCtr.text,
+                  "",
+                  int.tryParse(productStockMinimumQuantityCtr.text) ?? 0,
+                  selectedCategoryId,
+                  [],
+                  DateTime.now(),
+                  DateTime.now()
+                );
+                Navigator.pop(context, product);
+                print(" Product ${product.toJson()}");
               },
               child: const Text('Salva'),
             ),
@@ -219,6 +162,23 @@ class _ProductsPageState extends State<ProductsPage> {
         );
       },
     );
+
+    if(result != null ){
+      try {
+        await _productsRepository.addProduct(result);
+        
+      } catch (err) {
+                if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Errore: $err'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+
   }
 
   @override
@@ -278,17 +238,15 @@ class _ProductsPageState extends State<ProductsPage> {
                           ),
                           columns: const [
                             DataColumn(label: Text('Nome')),
-                            DataColumn(label: Text('Quantità')),
-                            DataColumn(label: Text('Stato')),
+                            DataColumn(label: Text('Scorta minima'))
                           ],
                           rows: products.map((product) {
                             return DataRow(
                               cells: [
                                 DataCell(Text(product.name)),
                                 DataCell(
-                                  Text(product.stockQuantity.toString()),
+                                  Text(product.minimum_stock.toString()),
                                 ),
-                                DataCell(Text('Stato')),
                               ],
                             );
                           }).toList(),

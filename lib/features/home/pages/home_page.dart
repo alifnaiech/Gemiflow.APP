@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gemiflow/features/products_categories/pages/categories_page.dart';
+import 'package:gemiflow/features/categories/pages/categories_page.dart';
 import 'package:gemiflow/features/dashboard/pages/dashboard_page.dart';
 import 'package:gemiflow/features/products/pages/products_page.dart';
 

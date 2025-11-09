@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gemiflow/features/products_categories/models/products_categories_model.dart';
-import 'package:gemiflow/features/products_categories/repositories/products_categories_repository.dart';
-import 'package:gemiflow/features/products_categories/services/products_categories_service.dart';
+import 'package:gemiflow/features/categories/models/category_model.dart';
+import 'package:gemiflow/features/categories/repositories/categories_repository.dart';
+import 'package:gemiflow/features/categories/services/categories_service.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -11,23 +11,23 @@ class CategoriesPage extends StatefulWidget {
 }
 
 class _CategoriesPageState extends State<CategoriesPage> {
-  late final ProductsCategoriesRepository _productsCategoriesRepository;
-  late Future<List<ProductsCategory>> _futureProductsCategory;
+  late final CategoriesRepository _categoriesRepository;
+  late Future<List<CategoryModel>> _futureCategory;
 
   @override
   void initState() {
     super.initState();
-    _productsCategoriesRepository = ProductsCategoriesRepository(
-      productsCategoriesService: ProductsCategoriesService(),
+    _categoriesRepository = CategoriesRepository(
+      categoriesService: CategoriesService(),
     );
-    _futureProductsCategory = _productsCategoriesRepository
-        .getProductsCategories();
+    _futureCategory = _categoriesRepository
+        .getCategories();
   }
 
-  void _loadProductsCategories() {
+  void _loadCategories() {
     setState(() {
-      _futureProductsCategory = _productsCategoriesRepository
-          .getProductsCategories();
+      _futureCategory = _categoriesRepository
+          .getCategories();
     });
   }
 
@@ -77,9 +77,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
 
     if (result != null && result.isNotEmpty) {
+      print(result);
       try {
-        await _productsCategoriesRepository.addCategory(result);
-        _loadProductsCategories();
+        await _categoriesRepository.addCategory(result);
+        _loadCategories();
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -106,9 +107,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
   /// Edit Product Category
   Future<void> _openEditDialog(
     BuildContext context,
-    ProductsCategory productCategory,
+    CategoryModel productCategory,
   ) async {
-    final result = await showDialog<ProductsCategory>(
+    final result = await showDialog<CategoryModel>(
       context: context,
       builder: (context) {
         final TextEditingController nameController = TextEditingController(
@@ -148,11 +149,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
     if (result != null && result.name.isNotEmpty) {
       try {
-        await _productsCategoriesRepository.updateCategory(
-          result.productCategoryId,
+        await _categoriesRepository.updateCategory(
+          result.category_id,
           result.name,
         );
-        _loadProductsCategories();
+        _loadCategories();
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -208,8 +209,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
           children: [
             SizedBox(height: 10),
             Expanded(
-              child: FutureBuilder<List<ProductsCategory>>(
-                future: _futureProductsCategory,
+              child: FutureBuilder<List<CategoryModel>>(
+                future: _futureCategory,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());

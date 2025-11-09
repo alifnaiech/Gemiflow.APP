@@ -6,38 +6,31 @@ part of 'product_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Product _$ProductFromJson(Map<String, dynamic> json) => Product(
-  (json['productId'] as num).toInt(),
+ProductModel _$ProductModelFromJson(Map<String, dynamic> json) => ProductModel(
+  (json['product_id'] as num).toInt(),
   json['name'] as String,
-  json['description'] as String,
-  (json['pricePurchase'] as num?)?.toDouble(),
-  (json['priceSale'] as num?)?.toDouble(),
-  (json['barcodeNumber'] as num?)?.toInt(),
-  json['skuCode'] as String,
-  (json['stockQuantity'] as num?)?.toInt(),
-  (json['stockMinimumQuantity'] as num?)?.toInt(),
-  (json['categoryId'] as num?)?.toInt(),
-  json['imageUrl'] as String,
-  json['createdAt'] == null
+  json['sku_code'] as String,
+  (json['minimum_stock'] as num?)?.toInt(),
+  (json['category_id'] as num?)?.toInt(),
+  (json['product_barcodes'] as List<dynamic>)
+      .map((e) => ProductBarcodeModel.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  json['created_at'] == null
       ? null
-      : DateTime.parse(json['createdAt'] as String),
-  json['updatedAt'] == null
+      : DateTime.parse(json['created_at'] as String),
+  json['updated_at'] == null
       ? null
-      : DateTime.parse(json['updatedAt'] as String),
+      : DateTime.parse(json['updated_at'] as String),
 );
 
-Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
-  'productId': instance.productId,
-  'name': instance.name,
-  'description': instance.description,
-  'pricePurchase': instance.pricePurchase,
-  'priceSale': instance.priceSale,
-  'barcodeNumber': instance.barcodeNumber,
-  'skuCode': instance.skuCode,
-  'stockQuantity': instance.stockQuantity,
-  'stockMinimumQuantity': instance.stockMinimumQuantity,
-  'categoryId': instance.categoryId,
-  'imageUrl': instance.imageUrl,
-  'createdAt': instance.createdAt?.toIso8601String(),
-  'updatedAt': instance.updatedAt?.toIso8601String(),
-};
+Map<String, dynamic> _$ProductModelToJson(ProductModel instance) =>
+    <String, dynamic>{
+      'product_id': instance.product_id,
+      'name': instance.name,
+      'sku_code': instance.sku_code,
+      'minimum_stock': instance.minimum_stock,
+      'category_id': instance.category_id,
+      'product_barcodes': instance.product_barcodes,
+      'created_at': instance.created_at?.toIso8601String(),
+      'updated_at': instance.updated_at?.toIso8601String(),
+    };

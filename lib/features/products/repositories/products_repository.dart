@@ -6,7 +6,7 @@ class ProductsRepository {
 
   ProductsRepository({required this.productsService});
   ///? TODO: Understand the using of rethrow
-  Future<List<Product>> getProducts() async {
+  Future<List<ProductModel>> getProducts() async {
     try {
       final products = await productsService.getProducts();
       return products;
@@ -15,4 +15,9 @@ class ProductsRepository {
       rethrow;
     }
   }
+
+  Future<void> addProduct(ProductModel prod) async {
+    await productsService.createProduct(prod);
+  }
+
 }

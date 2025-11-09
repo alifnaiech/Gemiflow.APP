@@ -1,40 +1,31 @@
+import 'package:gemiflow/features/products/models/product_barcode_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'product_model.g.dart';
 
 @JsonSerializable()
-class Product {
-  int productId;
+class ProductModel {
+  int product_id;
   String name;
-  String description;
-  double? pricePurchase;
-  double? priceSale;
-  int? barcodeNumber;
-  String skuCode;
-  int? stockQuantity;
-  int? stockMinimumQuantity;
-  int? categoryId;
-  String imageUrl;
-  DateTime? createdAt;
-  DateTime? updatedAt;
+  String sku_code;
+  int? minimum_stock;
+  int? category_id;
+  List<ProductBarcodeModel> product_barcodes;
+  DateTime? created_at;
+  DateTime? updated_at;
 
-  Product(
-    this.productId,
+  ProductModel(
+    this.product_id,
     this.name,
-    this.description,
-    this.pricePurchase,
-    this.priceSale,
-    this.barcodeNumber,
-    this.skuCode,
-    this.stockQuantity,
-    this.stockMinimumQuantity,
-    this.categoryId,
-    this.imageUrl,
-    this.createdAt,
-    this.updatedAt,
+    this.sku_code,
+    this.minimum_stock,
+    this.category_id,
+    this.product_barcodes,
+    this.created_at,
+    this.updated_at,
   );
 
-  factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
+  factory ProductModel.fromJson(Map<String, dynamic> json) => _$ProductModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ProductToJson(this);
+  Map<String, dynamic> toJson() => _$ProductModelToJson(this);
 }
