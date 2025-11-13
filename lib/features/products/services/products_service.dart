@@ -16,7 +16,7 @@ class ProductsService {
         (jsonData) => jsonData as List<dynamic>,
       );
 
-      return apiResponse.data.map((e) => ProductModel.fromJson(e)).toList();
+      return  apiResponse.data.map((e) => ProductModel.fromJson(e)).toList();
     } else {
       throw Exception('Failed to load products: ${response.statusCode}');
     }
@@ -38,4 +38,18 @@ class ProductsService {
       );
     }
   }
+
+  Future<void> updateProduct(ProductModel product) async {
+  final url = Uri.parse("$apiUrl/products/${product.product_id}");
+  final body = jsonEncode(product.toJson());
+  final response = await http_client.put(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: body,
+  );
+
+  if (response.statusCode != 200 && response.statusCode != 204) {
+    throw Exception('Errore aggiornamento prodotto: ${response.statusCode} ${response.body}');
+  }
+}
 }

@@ -8,10 +8,11 @@ part of 'product_model.dart';
 
 ProductModel _$ProductModelFromJson(Map<String, dynamic> json) => ProductModel(
   (json['product_id'] as num).toInt(),
-  json['name'] as String,
-  json['sku_code'] as String,
+  json['name'] as String?,
+  json['sku'] as String?,
   (json['minimum_stock'] as num?)?.toInt(),
   (json['category_id'] as num?)?.toInt(),
+  json['category_name'] as String?,
   (json['product_barcodes'] as List<dynamic>)
       .map((e) => ProductBarcodeModel.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -27,7 +28,8 @@ Map<String, dynamic> _$ProductModelToJson(ProductModel instance) =>
     <String, dynamic>{
       'product_id': instance.product_id,
       'name': instance.name,
-      'sku_code': instance.sku_code,
+      'sku': instance.sku,
+      'category_name': instance.category_name,
       'minimum_stock': instance.minimum_stock,
       'category_id': instance.category_id,
       'product_barcodes': instance.product_barcodes,

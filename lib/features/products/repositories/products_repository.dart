@@ -8,7 +8,9 @@ class ProductsRepository {
   ///? TODO: Understand the using of rethrow
   Future<List<ProductModel>> getProducts() async {
     try {
+
       final products = await productsService.getProducts();
+
       return products;
     } catch (e) {
       print("Error in the get products repository ");
@@ -19,5 +21,9 @@ class ProductsRepository {
   Future<void> addProduct(ProductModel prod) async {
     await productsService.createProduct(prod);
   }
+
+  Future<void> updateProduct(ProductModel product) async {
+  await productsService.updateProduct(product);
+}
 
 }

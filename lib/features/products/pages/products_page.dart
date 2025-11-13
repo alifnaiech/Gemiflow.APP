@@ -41,6 +41,12 @@ class _ProductsPageState extends State<ProductsPage> {
     _futureProducts = _productsRepository.getProducts();
   }
 
+  loadProducts() {
+    setState(() {
+      _futureProducts = _productsRepository.getProducts();
+    });
+  }
+
   // Add new Product
   Future<void> _openDialogNewProduct() async {
     final TextEditingController productNameCtr = TextEditingController();
@@ -145,9 +151,10 @@ class _ProductsPageState extends State<ProductsPage> {
                   "",
                   int.tryParse(productStockMinimumQuantityCtr.text) ?? 0,
                   selectedCategoryId,
+                  "",
                   [],
                   DateTime.now(),
-                  DateTime.now()
+                  DateTime.now(),
                 );
                 Navigator.pop(context, product);
                 print(" Product ${product.toJson()}");
@@ -163,12 +170,20 @@ class _ProductsPageState extends State<ProductsPage> {
       },
     );
 
-    if(result != null ){
+    if (result != null) {
       try {
         await _productsRepository.addProduct(result);
-        
+        loadProducts();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Prodotto aggiunto'),
+              backgroundColor: Colors.teal,
+            ),
+          );
+        }
       } catch (err) {
-                if (context.mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Errore: $err'),
@@ -178,8 +193,174 @@ class _ProductsPageState extends State<ProductsPage> {
         }
       }
     }
-
   }
+
+  ////
+  /// Edit product
+  ///
+Future<void> _openEditDialog(
+  BuildContext context,
+  ProductModel product,
+) async {
+  final TextEditingController nameController = TextEditingController(
+    text: product.name ?? '',
+  );
+  final TextEditingController skuController = TextEditingController(
+    text: product.sku ?? '',
+  );
+  final TextEditingController minimumStockController = TextEditingController(
+    text: product.minimum_stock?.toString() ?? '',
+  );
+
+  int? selectedCategoryId = product.category_id;
+
+  final result = await showDialog<ProductModel>(
+    context: context,
+    barrierDismissible: true,
+    builder: (context) {
+      return StatefulBuilder(builder: (context, setState) {
+        return AlertDialog(
+          title: const Text('Modifica Prodotto'),
+          content: Form(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800, minWidth: 600),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Name & SKU
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Nome prodotto'),
+                            const SizedBox(height: 5),
+                            TextFormField(
+                              controller: nameController,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Categoria'),
+                            const SizedBox(height: 5),
+                            DropdownButtonFormField<int>(
+                              value: selectedCategoryId,
+                              items: _category.map((cat) {
+                                return DropdownMenuItem<int>(
+                                  value: cat.category_id,
+                                  child: Text(cat.name),
+                                );
+                              }).toList(),
+                              onChanged: (val) => setState(() {
+                                selectedCategoryId = val;
+                              }),
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Category & Minimum stock
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Scorta minima'),
+                            const SizedBox(height: 5),
+                            TextFormField(
+                              controller: minimumStockController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.start,
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.indigo,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                // Build updated ProductModel preserving unedited fields
+                final updated = ProductModel(
+                  product.product_id,
+                  nameController.text.trim().isEmpty ? null : nameController.text.trim(),
+                  skuController.text.trim().isEmpty ? null : skuController.text.trim(),
+                  int.tryParse(minimumStockController.text) ?? product.minimum_stock,
+                  selectedCategoryId,
+                  product.category_name, // category_name may be updated by server
+                  product.product_barcodes,
+                  product.created_at,
+                  DateTime.now(), // updated_at set locally; server should override
+                );
+
+                Navigator.pop(context, updated);
+              },
+              child: const Text('Salva'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Annulla'),
+            ),
+          ],
+        );
+      });
+    },
+  );
+
+  if (result != null) {
+    try {
+      // If repository doesn't have updateProduct yet, add it. See suggestions below.
+      await _productsRepository.updateProduct(result);
+      loadProducts();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Prodotto aggiornato'),
+            backgroundColor: Colors.teal,
+          ),
+        );
+      }
+    } catch (err) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Errore: $err'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -238,14 +419,25 @@ class _ProductsPageState extends State<ProductsPage> {
                           ),
                           columns: const [
                             DataColumn(label: Text('Nome')),
-                            DataColumn(label: Text('Scorta minima'))
+                            DataColumn(label: Text('Scorta minima')),
+                            DataColumn(label: Text('Categoria')),
+                            DataColumn(label: Text('Azioni')),
                           ],
                           rows: products.map((product) {
                             return DataRow(
                               cells: [
-                                DataCell(Text(product.name)),
+                                DataCell(Text(product.name ?? '')),
                                 DataCell(
                                   Text(product.minimum_stock.toString()),
+                                ),
+                                DataCell(Text(product.category_name ?? '')),
+                                DataCell(
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () {
+                                      _openEditDialog(context, product);
+                                    },
+                                  ),
                                 ),
                               ],
                             );

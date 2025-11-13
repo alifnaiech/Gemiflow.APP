@@ -6,10 +6,11 @@ part 'product_model.g.dart';
 @JsonSerializable()
 class ProductModel {
   int product_id;
-  String name;
-  String sku_code;
+  String? name;
+  String? sku;
   int? minimum_stock;
   int? category_id;
+  String? category_name;
   List<ProductBarcodeModel> product_barcodes;
   DateTime? created_at;
   DateTime? updated_at;
@@ -17,9 +18,10 @@ class ProductModel {
   ProductModel(
     this.product_id,
     this.name,
-    this.sku_code,
+    this.sku,
     this.minimum_stock,
     this.category_id,
+    this.category_name,
     this.product_barcodes,
     this.created_at,
     this.updated_at,
