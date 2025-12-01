@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gemiflow/features/categories/pages/categories_page.dart';
 import 'package:gemiflow/features/dashboard/pages/dashboard_page.dart';
 import 'package:gemiflow/features/products/pages/products_page.dart';
+import 'package:gemiflow/features/warehouses/pages/warehouses_pages.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,6 +29,8 @@ class _HomePageState extends State<HomePage> {
       case 2:
         page = CategoriesPage();
         break;
+      case 3: 
+        page = WarehousePage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -64,6 +67,14 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.indigoAccent,
                       ),
                       label: Text('Categorie'),
+                    ),
+                      NavigationRailDestination(
+                      icon: Icon(Icons.category_outlined),
+                      selectedIcon: Icon(
+                        Icons.category_rounded,
+                        color: Colors.indigoAccent,
+                      ),
+                      label: Text('Magazzini'),
                     ),
                   ],
                   selectedIndex: selectedIndex,

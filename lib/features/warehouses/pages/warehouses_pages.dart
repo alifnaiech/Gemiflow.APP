@@ -1,35 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:gemiflow/features/categories/models/category_model.dart';
-import 'package:gemiflow/features/categories/repositories/categories_repository.dart';
-import 'package:gemiflow/features/categories/services/categories_service.dart';
+import 'package:gemiflow/features/warehouses/models/warehouse_model.dart';
+import 'package:gemiflow/features/warehouses/repositories/warehouses_repository.dart';
+import 'package:gemiflow/features/warehouses/services/warehouses_service.dart';
 
-class CategoriesPage extends StatefulWidget {
-  const CategoriesPage({super.key});
+class WarehousePage extends StatefulWidget {
+  const WarehousePage({super.key});
 
   @override
-  State<CategoriesPage> createState() => _CategoriesPageState();
+  State<WarehousePage> createState() => _WarehousePageState();
 }
 
-class _CategoriesPageState extends State<CategoriesPage> {
-  late final CategoriesRepository _categoriesRepository;
-  late Future<List<CategoryModel>> _futureCategory;
+class _WarehousePageState extends State<WarehousePage> {
+  late final WarehousesRepository _warehousesRepository;
+  late Future<List<WarehouseModel>> _futureWarehouse;
 
   @override
   void initState() {
     super.initState();
-    _categoriesRepository = CategoriesRepository(
-      categoriesService: CategoriesService(),
+    _warehousesRepository = WarehousesRepository(
+      warehousesService: WarehousesService()
     );
-    _futureCategory = _categoriesRepository.getCategories();
+    _futureWarehouse = _warehousesRepository.getWarehouses();
   }
 
-  void _loadCategories() {
+  void _loadWarehouses() {
     setState(() {
-      _futureCategory = _categoriesRepository.getCategories();
+      _futureWarehouse = _warehousesRepository.getWarehouses();
     });
   }
 
-  /// Add new Product Category
+  /// Add new Warehouse
   Future<void> _openDialog(BuildContext context) async {
     // showDialog returns a Future that completes when Navigator.pop is called inside the dialog
     final result = await showDialog<String>(
@@ -40,7 +40,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
         final TextEditingController nameController = TextEditingController();
         // Simple AlertDialog with two buttons
         return AlertDialog(
-          title: const Text('Nuova Categoria'),
+          title: const Text('Nuovo Magazzino'),
           content: TextField(
             controller: nameController,
             decoration: const InputDecoration(border: OutlineInputBorder()),
@@ -77,12 +77,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
     if (result != null && result.isNotEmpty) {
       print(result);
       try {
-        await _categoriesRepository.addCategory(result);
-        _loadCategories();
+        await _warehousesRepository.addWarehouse(result);
+        _loadWarehouses();
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Categoria aggiunta'),
+              content: Text('Magazzino aggiunto'),
               backgroundColor: Colors.teal,
             ),
           );
@@ -102,25 +102,25 @@ class _CategoriesPageState extends State<CategoriesPage> {
     }
   }
 
-  /// Edit Product Category
+  /// Edit Warehouse
   Future<void> _openEditDialog(
     BuildContext context,
-    CategoryModel productCategory,
+    WarehouseModel warehouse,
   ) async {
-    final result = await showDialog<CategoryModel>(
+    final result = await showDialog<WarehouseModel>(
       context: context,
       builder: (context) {
         final TextEditingController nameController = TextEditingController(
-          text: productCategory.name,
+          text: warehouse.name,
         );
         return AlertDialog(
-          title: Text('Modifica categoria'),
+          title: Text('Modifica magazzino'),
           content: TextField(
             controller: nameController,
             decoration: const InputDecoration(border: OutlineInputBorder()),
             onSubmitted: (value) {
-              productCategory.name = nameController.text.trim();
-              Navigator.pop(context, productCategory);
+              warehouse.name = nameController.text.trim();
+              Navigator.pop(context, warehouse);
             },
           ),
           actionsAlignment: MainAxisAlignment.start,
@@ -131,8 +131,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 foregroundColor: Colors.white,
               ),
               onPressed: () {
-                productCategory.name = nameController.text.trim();
-                Navigator.pop(context, productCategory);
+                warehouse.name = nameController.text.trim();
+                Navigator.pop(context, warehouse);
               },
               child: const Text('Salva'),
             ),
@@ -147,15 +147,15 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
     if (result != null && result.name.isNotEmpty) {
       try {
-        await _categoriesRepository.updateCategory(
-          result.category_id,
+        await _warehousesRepository.updateWarehouse(
+          result.warehouse_id,
           result.name,
         );
-        _loadCategories();
+        _loadWarehouses();
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Categoria aggiornata con successo'),
+              content: Text('Magazzino aggiornato con successo'),
               backgroundColor: Colors.teal,
             ),
           );
@@ -178,7 +178,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Categorie",
+          "Magazzino",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
         ),
         actions: [
@@ -192,7 +192,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              label: const Text("Nuova categoria"),
+              label: const Text("Nuovo Magazzino"),
               onPressed: () {
                 _openDialog(context);
               },
@@ -207,8 +207,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
           children: [
             SizedBox(height: 10),
             Expanded(
-              child: FutureBuilder<List<CategoryModel>>(
-                future: _futureCategory,
+              child: FutureBuilder<List<WarehouseModel>>(
+                future: _futureWarehouse,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -216,11 +216,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
-                      child: Text('Nessun categoria disponibile'),
+                      child: Text('Nessun magazzino disponibile'),
                     );
                   }
 
-                  final productsCategory = snapshot.data!;
+                  final warehouses = snapshot.data!;
 
                   return SafeArea(
                     child: SizedBox.expand(
@@ -234,15 +234,15 @@ class _CategoriesPageState extends State<CategoriesPage> {
                             DataColumn(label: Text('Nome')),
                             DataColumn(label: Text('Azioni')),
                           ],
-                          rows: productsCategory.map((productCategory) {
+                          rows: warehouses.map((wrh) {
                             return DataRow(
                               cells: [
-                                DataCell(Text(productCategory.name)),
+                                DataCell(Text(wrh.name)),
                                 DataCell(
                                   IconButton(
                                     icon: const Icon(Icons.edit),
                                     onPressed: () {
-                                      _openEditDialog(context, productCategory);
+                                      _openEditDialog(context, wrh);
                                     },
                                   ),
                                 ),
